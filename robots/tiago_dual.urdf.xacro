@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tiago_dual">
+
+
+<xacro:include filename="$(find tiago_dual_description)/robots/tiago_dual.urdf.xacro"/>
+
+<link name="world"/>
+  <joint name="reference" type="floating">
+    <parent link="world"/>
+    <child link="base_footprint"/>
+</joint>
+
+
+</robot>
