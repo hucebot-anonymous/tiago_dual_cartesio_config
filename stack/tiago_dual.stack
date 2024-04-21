@@ -41,12 +41,12 @@ Postural:
     lambda: 0.1
     use_inertia: true
     weight:
-        VIRTUALJOINT_1: 0.0
-        VIRTUALJOINT_2: 0.0
-        VIRTUALJOINT_3: 0.0
-        VIRTUALJOINT_4: 0.0
-        VIRTUALJOINT_5: 0.0
-        VIRTUALJOINT_6: 0.0
+        reference@v0: 0.0
+        reference@v1: 0.0
+        reference@v2: 0.0
+        reference@v3: 0.0
+        reference@v4: 0.0
+        reference@v5: 0.0
         wheel_front_left_joint: 0.0 
         wheel_front_right_joint: 0.0 
         wheel_rear_left_joint: 0.0 
@@ -81,7 +81,6 @@ Collision:
     distance_threshold: 0.01
     max_pairs: 100
     collision_urdf_path: $(rospack find tiago_dual_cartesio_config)/capsules/urdf/tiago_dual_capsules.rviz
-    #collision_urdf_path: $(rospack find kairos_cartesio_config)/capsules/fb_kairos_ur5e_oem.urdf
     collision_srdf_path: $(rospack find tiago_dual_cartesio_config)/capsules/srdf/tiago_dual_capsules.srdf
     pairs:
      - [arm_left_3_link, base_link]
