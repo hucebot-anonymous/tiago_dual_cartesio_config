@@ -3,7 +3,8 @@ solver_options:
     back_end: "qpoases"
 
 stack:
-    - ["Lee", "Ree", "Base", "Gaze"]
+    - ["Gaze"]
+    - ["Lee", "Ree", "Base"]
     - ["Postural"]
 
     
@@ -138,6 +139,11 @@ Collision:
      - [gripper_left_link, arm_right_5_link]
      - [gripper_right_link, arm_left_4_link]
      - [gripper_right_link, arm_left_5_link]
+     
+     - [torso_fixed_column_link, gripper_right_left_finger_link]
+     - [torso_fixed_column_link, gripper_right_right_finger_link]
+     - [torso_fixed_column_link, gripper_left_left_finger_link]
+     - [torso_fixed_column_link, gripper_left_right_finger_link]
      
      
      
