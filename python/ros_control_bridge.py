@@ -19,7 +19,7 @@ mobile_base_cmd_pub = None
 mobile_base_cmd_msg = Twist()
 
 rate_ = 10.
-time_duration = rospy.Time()
+time_duration = 1.0
 
 SEND_VELOCITY = False
 
@@ -42,11 +42,12 @@ def set_initial_configuration(data: JointState):
     rospy.set_param("cartesian/home", home)
 
 def fill_cms_msg(data:JointState, cmd_msg: JointTrajectory, rate: float, send_velocity = True):
+    global time_duration
     for joint_name in cmd_msg.joint_names:
         cmd_msg.points[0].positions[cmd_msg.joint_names.index(joint_name)] = data.position[data.name.index(joint_name)]
         if send_velocity:
             cmd_msg.points[0].velocities[cmd_msg.joint_names.index(joint_name)] = data.velocity[data.name.index(joint_name)]
-    cmd_msg.points[0].time_from_start = rospy.Duration(1.)
+    cmd_msg.points[0].time_from_start = rospy.Duration(time_duration)
     return cmd_msg
 def io_callback(data: JointState):
     global head_cmd_pub, head_cmd_msg
@@ -68,14 +69,14 @@ def io_callback(data: JointState):
     mobile_base_cmd_msg.angular.y = 0.
     mobile_base_cmd_msg.angular.z = data.velocity[5]
 
-    time = rospy.Time.now()
+    time = rospy.get_rostime() #rospy.Time.now()
 
     head_cmd_msg.header.stamp = time
     left_arm_cmd_msg.header.stamp = time
     right_arm_cmd_msg.header.stamp = time
     torso_cmd_msg.header.stamp = time
 
-    head_cmd_pub.publish(head_cmd_msg)
+    #head_cmd_pub.publish(head_cmd_msg)
     left_arm_cmd_pub.publish(left_arm_cmd_msg)
     right_arm_cmd_pub.publish(right_arm_cmd_msg)
     torso_cmd_pub.publish(torso_cmd_msg)
@@ -90,7 +91,6 @@ def init_cmd_msg(cmd_msg: JointTrajectory, joint_names):
 
 if __name__ == '__main__':
     rospy.init_node('ros_control_bridge', anonymous=True)
-    time_duration = rospy.get_rostime()
     print(f"SEND_VELOCITY: {SEND_VELOCITY}")
 
     data = rospy.wait_for_message("joint_states", JointState, timeout=5)
