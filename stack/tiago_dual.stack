@@ -22,13 +22,13 @@ Omni4X:
 Lee:
     type: "Cartesian"
     distal_link: "gripper_left_grasping_frame"
-    base_link: "world"
+    base_link: "base_link"
     lambda: 0.1
     
 Ree:
     type: "Cartesian"
     distal_link: "gripper_right_grasping_frame"
-    base_link: "world"
+    base_link: "base_link"
     lambda: 0.1
     
 Gaze:
