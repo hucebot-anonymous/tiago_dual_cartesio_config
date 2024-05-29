@@ -7,38 +7,54 @@ from scipy.spatial.transform import Rotation as R
 import numpy as np
 
 ci = pyci.CartesianInterfaceRos()
-ee_left_pose_initial, _, _ = ci.getPoseReference('gripper_left_grasping_frame')
-reference_publisher = rospy.Publisher('/cartesian/gripper_left_grasping_frame/reference', PoseStamped, queue_size=10)
-initial_ref = None
+pose_initial = Affine3()
+initial_ref = PoseStamped()
+initialized = False
+controlled_frame = str()
+
 def callback(data: PoseStamped):
-    r_init = R.from_quat([initial_ref.pose.orientation.x, initial_ref.pose.orientation.y, initial_ref.pose.orientation.z, initial_ref.pose.orientation.w])
-    data_m_init = Affine3()
-    data_m_init.translation = np.array([initial_ref.pose.position.x, initial_ref.pose.position.y, initial_ref.pose.position.z])
-    data_m_init.linear = r_init.as_matrix()
+    global initial_ref, initialized, controlled_frame, pose_initial, ci, pose_initial
 
-    r = R.from_quat([data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w])
-    data_m = Affine3()
-    data_m.translation = np.array([data.pose.position.x, data.pose.position.y, data.pose.position.z])
-    data_m.linear = r.as_matrix()
+    if not initialized:
+        initial_ref = data
+        pose_initial, _, _ = ci.getPoseReference(controlled_frame)
+        initialized = True
+        rospy.loginfo("correclty initialized")
+    else:
+        r_init = R.from_quat(
+            [initial_ref.pose.orientation.x, initial_ref.pose.orientation.y, initial_ref.pose.orientation.z,
+             initial_ref.pose.orientation.w])
+        data_m_init = Affine3()
+        data_m_init.translation = np.array(
+            [initial_ref.pose.position.x, initial_ref.pose.position.y, initial_ref.pose.position.z])
+        data_m_init.linear = r_init.as_matrix()
 
-    ref_m =  ee_left_pose_initial * data_m_init.inverse() * data_m
+        r = R.from_quat(
+            [data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w])
+        data_m = Affine3()
+        data_m.translation = np.array([data.pose.position.x, data.pose.position.y, data.pose.position.z])
+        data_m.linear = r.as_matrix()
 
-    reference = PoseStamped()
-    reference.pose.position.x = ref_m.translation[0]
-    reference.pose.position.y = ref_m.translation[1]
-    reference.pose.position.z = ref_m.translation[2]
-    reference.pose.orientation.x = data.pose.orientation.x
-    reference.pose.orientation.y = data.pose.orientation.y
-    reference.pose.orientation.z = data.pose.orientation.z
-    reference.pose.orientation.w = data.pose.orientation.w
+        ref_m = pose_initial * data_m_init.inverse() * data_m
 
-    reference.header.frame_id = "ci/world"
-    reference.header.stamp = rospy.get_rostime()
-    reference_publisher.publish(reference)
+        pose_ref = Affine3()
+        pose_ref.translation = ref_m.translation
+        pose_ref.linear = data_m.linear
+
+        ci.setPoseReference(controlled_frame, pose_ref)
+
 
 if __name__ == '__main__':
     rospy.init_node('teleop_bridge', anonymous=True)
-    initial_ref = rospy.wait_for_message("pos", PoseStamped, timeout=5)
-    rospy.Subscriber("pos", PoseStamped, callback)
+
+    if rospy.has_param('~controlled_frame'):
+        controlled_frame = rospy.get_param('~controlled_frame')
+    else:
+        rospy.logerr("controlled_frame private param is mandatory! Exiting.")
+        exit()
+
+    rospy.loginfo(f"controlled_frame: {controlled_frame}")
+
+    rospy.Subscriber("teleop_pose", PoseStamped, callback)
 
     rospy.spin()

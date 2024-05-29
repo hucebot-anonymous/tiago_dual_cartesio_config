@@ -1,0 +1,7 @@
+<launch>
+	<arg name="controlled_frame" default="gripper_left_grasping_frame"/>
+	<node pkg="tiago_dual_cartesio_config" type="teleop_bridge.py" name="left_arm_teleoperation" output="screen">
+		<remap from="/teleop_pose" to="/dxl_input/pos"/>
+		<param name="controlled_frame" type="str" value="$(arg controlled_frame)" />
+	</node>
+</launch>

@@ -18,8 +18,8 @@ torso_cmd_msg = JointTrajectory()
 mobile_base_cmd_pub = None
 mobile_base_cmd_msg = Twist()
 
-rate_ = 10.
-time_duration = 1.0
+rate_ = 50. #10.
+time_duration = 0.2 #1.0
 
 SEND_VELOCITY = False
 
