@@ -40,7 +40,7 @@ Gaze:
 Postural:
     type: "Postural"
     lambda: 0.1
-    use_inertia: true
+    use_inertia: false
     weight:
         reference@v0: 0.0
         reference@v1: 0.0
