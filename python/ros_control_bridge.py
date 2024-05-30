@@ -130,6 +130,7 @@ if __name__ == '__main__':
     if rospy.has_param('~send_commands'):
         send_commands=rospy.get_param('~send_commands')
     rospy.Service('send_commands', SetBool, set_send_commands)
+    print(f"send_commands: {send_commands}")
 
     rospy.Subscriber("cartesian/solution", JointState, io_callback)
 
