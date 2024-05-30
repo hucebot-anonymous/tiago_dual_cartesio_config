@@ -4,6 +4,7 @@ import rospy
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Twist
+from std_srvs.srv import SetBool, SetBoolResponse
 
 head_cmd_pub = None
 head_cmd_msg = JointTrajectory()
@@ -22,6 +23,8 @@ mobile_base_cmd_msg = Twist()
 
 rate_ = 50. #10.
 time_duration = 0.2 #1.0
+
+send_commands = True
 
 SEND_VELOCITY = False
 
@@ -58,6 +61,7 @@ def io_callback(data: JointState):
     global torso_cmd_pub, torso_cmd_msg
     global mobile_base_cmd_pub, mobile_base_cmd_msg
     global rate_, time_duration
+    global send_commands
 
     head_cmd_msg = fill_cms_msg(data, head_cmd_msg, rate_, send_velocity=SEND_VELOCITY)
     left_arm_cmd_msg = fill_cms_msg(data, left_arm_cmd_msg, rate_, send_velocity=SEND_VELOCITY)
@@ -71,18 +75,19 @@ def io_callback(data: JointState):
     mobile_base_cmd_msg.angular.y = 0.
     mobile_base_cmd_msg.angular.z = data.velocity[5]
 
-    time = rospy.get_rostime() #rospy.Time.now()
+    time = rospy.get_rostime()
 
     head_cmd_msg.header.stamp = time
     left_arm_cmd_msg.header.stamp = time
     right_arm_cmd_msg.header.stamp = time
     torso_cmd_msg.header.stamp = time
 
-    #head_cmd_pub.publish(head_cmd_msg)
-    left_arm_cmd_pub.publish(left_arm_cmd_msg)
-    right_arm_cmd_pub.publish(right_arm_cmd_msg)
-    torso_cmd_pub.publish(torso_cmd_msg)
-    mobile_base_cmd_pub.publish(mobile_base_cmd_msg)
+    if send_commands:
+        head_cmd_pub.publish(head_cmd_msg)
+        left_arm_cmd_pub.publish(left_arm_cmd_msg)
+        right_arm_cmd_pub.publish(right_arm_cmd_msg)
+        torso_cmd_pub.publish(torso_cmd_msg)
+        mobile_base_cmd_pub.publish(mobile_base_cmd_msg)
 
 def init_cmd_msg(cmd_msg: JointTrajectory, joint_names):
     cmd_msg.joint_names = joint_names
@@ -90,6 +95,14 @@ def init_cmd_msg(cmd_msg: JointTrajectory, joint_names):
     cmd_msg.points[0].positions = [0.] * len(cmd_msg.joint_names)
     cmd_msg.points[0].velocities = [0.] * len(cmd_msg.joint_names)
     return cmd_msg
+
+def set_send_commands(req: SetBool):
+    global send_commands
+    send_commands = req.data
+    response = SetBoolResponse()
+    response.success = True
+    response.message = "send_response set to " + str(req.data)
+    return response
 
 if __name__ == '__main__':
     rospy.init_node('ros_control_bridge', anonymous=True)
@@ -113,6 +126,10 @@ if __name__ == '__main__':
     torso_cmd_msg = init_cmd_msg(torso_cmd_msg, ["torso_lift_joint"])
 
     mobile_base_cmd_pub = rospy.Publisher('/mobile_base_controller/cmd_vel', Twist, queue_size=1)
+
+    if rospy.has_param('~send_commands'):
+        send_commands=rospy.get_param('~send_commands')
+    rospy.Service('send_commands', SetBool, set_send_commands)
 
     rospy.Subscriber("cartesian/solution", JointState, io_callback)
 
