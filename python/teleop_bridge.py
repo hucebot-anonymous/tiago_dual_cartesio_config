@@ -17,7 +17,8 @@ def callback(data: PoseStamped):
 
     if not initialized:
         initial_ref = data
-        pose_initial, _, _ = ci.getPoseReference(controlled_frame)
+        tmp, _, _ = ci.getPoseReference(controlled_frame)
+        pose_initial.translation = tmp.translation
         initialized = True
         rospy.loginfo("correclty initialized")
     else:
