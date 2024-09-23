@@ -71,6 +71,21 @@ Base2D:
     
 JointLimits:
     type: "JointLimits"
+    limits:
+        arm_right_1_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_right_2_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_right_3_joint: [-0.7153981633974482, 3.8569908169872416]
+        arm_right_4_joint: [-0.32269908169872413, 2.286194490192345]
+        arm_right_5_joint: [-2.0743951023931952, 2.0743951023931952]
+        arm_right_6_joint: [-1.3937166941154069, 1.3937166941154069]
+        arm_right_7_joint: [-2.0743951023931952, 2.0743951023931952]
+        arm_left_1_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_left_2_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_left_3_joint: [-0.7153981633974482, 3.8569908169872416]
+        arm_left_4_joint: [-0.32269908169872413, 2.286194490192345]
+        arm_left_5_joint: [-2.0743951023931952, 2.0743951023931952]
+        arm_left_6_joint: [-1.3937166941154069, 1.3937166941154069]
+        arm_left_7_joint: [-2.0743951023931952, 2.0743951023931952]
 
 VelocityLimits:
     type: "VelocityLimits"
@@ -144,6 +159,5 @@ Collision:
      - [torso_fixed_column_link, gripper_right_right_finger_link]
      - [torso_fixed_column_link, gripper_left_left_finger_link]
      - [torso_fixed_column_link, gripper_left_right_finger_link]
-     
      
      
