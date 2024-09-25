@@ -3,21 +3,11 @@ solver_options:
     back_end: "qpoases"
 
 stack:
-    - ["Gaze"]
     - ["Lee", "Ree", "Base"]
     - ["Postural"]
 
     
-constraints: ["JointLimits", "VelocityLimits", "Base2D", "Omni4X", "Collision"]
-    
-    
-Omni4X:
-    type: "OmniWheels4X"
-    l1: 0.223
-    l2: 0.244
-    wheel_radius: 0.08 
-    base_link: "base_link"
-    joint_wheels_name: ["wheel_front_left_joint", "wheel_front_right_joint", "wheel_rear_left_joint", "wheel_rear_right_joint"]    
+constraints: ["JointLimits", "VelocityLimits", "Base2D", "Collision"]
     
 Lee:
     type: "Cartesian"
@@ -30,12 +20,6 @@ Ree:
     distal_link: "gripper_right_grasping_frame"
     base_link: "base_link"
     lambda: 0.1
-    
-Gaze:
-    type: "Gaze"
-    distal_link: "head_front_camera_link"
-    base_link: "base_link"
-    lambda: 1.
     
 Postural:
     type: "Postural"
