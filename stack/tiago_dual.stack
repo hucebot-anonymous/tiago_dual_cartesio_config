@@ -14,6 +14,8 @@ Lee:
     distal_link: "gripper_left_grasping_frame"
     base_link: "base_link"
     lambda: 0.1
+    disabled_joints:
+        - "arm_left_7_joint"
     
 Ree:
     type: "Cartesian"
@@ -36,6 +38,7 @@ Postural:
         wheel_front_right_joint: 0.0 
         wheel_rear_left_joint: 0.0 
         wheel_rear_right_joint: 0.0
+        arm_left_7_joint: 0.0
     
 Base:
     type: "Cartesian"
