@@ -113,7 +113,8 @@ def set_send_commands(req: SetBool):
     send_commands = req.data
     response = SetBoolResponse()
     response.success = True
-    response.message = "send_response set to " + str(req.data)
+    response.message = "send_commands set to " + str(req.data)
+    rospy.loginfo(f"Setting send_commands={req.data}")
     return response
 
 
@@ -187,7 +188,7 @@ if __name__ == "__main__":
     # Get (possible) enable/disable parameter and set up service to change it
     if rospy.has_param("~send_commands"):
         send_commands = rospy.get_param("~send_commands")
-    rospy.Service("send_commands", SetBool, set_send_commands)
+    rospy.Service("ros_control_bridge/send_commands", SetBool, set_send_commands)
     rospy.loginfo(f"send_commands: {send_commands}")
 
     # Get (possible) 'time_from_start' parameter and set up subscriber to change it
