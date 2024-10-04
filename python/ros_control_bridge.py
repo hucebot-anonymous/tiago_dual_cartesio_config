@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import rospy
+import os
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Bool
 from std_srvs.srv import SetBool, SetBoolResponse
 
 head_cmd_pub = None
@@ -23,6 +24,8 @@ mobile_base_cmd_pub = None
 mobile_base_cmd_msg = Twist()
 
 time_from_start = 0.2
+
+exit_ = False
 
 send_commands = True
 
@@ -129,6 +132,10 @@ def time_from_start_cb(msg: Float32):
                 "Trying to set a 'time_from_start' too low. It must be >= 0.1secs"
             )
 
+def control_initiator_cb(msg):
+    global exit_
+    if not msg.data:
+        exit_ = True
 
 if __name__ == "__main__":
     rospy.init_node("ros_control_bridge", anonymous=True)
@@ -200,4 +207,11 @@ if __name__ == "__main__":
     # Set up subscriber to CartesI/O solution topic
     rospy.Subscriber("cartesian/solution", JointState, io_callback)
 
-    rospy.spin()
+    # Set up a subscriber to kill the node
+    rospy.Subscriber('/streamdeck/ros_control_bridge_initiator', Bool, control_initiator_cb)
+
+    while not exit_ or not rospy.is_shutdown():
+        rospy.spin()
+
+    rospy.loginfo("Exiting ros_control_bridge")
+    os._exit(0)
