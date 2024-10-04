@@ -2348,11 +2348,20 @@
 		  <parent link="wrist_right_ft_tool_link"/>
 		  <child link="camera_right_frame"/>
 	</joint>
-  
+
   <link name="camera_left_frame"/>
 	<joint name="camera_left_frame_joint" type="fixed">
 		  <origin rpy="1.57079632679 0 0" xyz="0.072 -0.085 -0.032"/>
 		  <parent link="wrist_left_ft_tool_link"/>
 		  <child link="camera_left_frame"/>
 	</joint>
+	
+	
+	<link name="camera_head_frame"/>
+	<joint name="camera_head_frame_joint" type="fixed">
+		  <origin rpy="3.093 0.759 -0.027" xyz="0.127 0.031 1.174"/>
+		  <parent link="base_link"/>
+		  <child link="camera_head_frame"/>
+	</joint>
+
 </robot>
