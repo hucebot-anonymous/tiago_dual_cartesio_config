@@ -41,3 +41,33 @@ plt.plot(
 plt.legend()
 plt.grid()
 plt.show()
+
+fig = plt.figure()
+fig.suptitle("Right EE", fontsize=16)
+plt.plot(
+    target_right_pose[:, -1] - target_right_pose[0, -1],
+    target_right_pose[:, 0],
+    linestyle="--",
+    color="tab:red",
+    linewidth=2,
+    label="target x",
+)
+plt.plot(
+    target_right_pose[:, -1] - target_right_pose[0, -1],
+    target_right_pose[:, 1],
+    linestyle="--",
+    color="tab:green",
+    linewidth=2,
+    label="target y",
+)
+plt.plot(
+    target_right_pose[:, -1] - target_right_pose[0, -1],
+    target_right_pose[:, 2],
+    color="tab:blue",
+    linestyle="--",
+    linewidth=2,
+    label="target z",
+)
+plt.legend()
+plt.grid()
+plt.show()

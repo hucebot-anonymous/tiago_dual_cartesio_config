@@ -21,7 +21,10 @@ class DemoRecorder:
             self.save_folder = rospy.get_param("~save_folder")
         else:
             self.save_folder = os.environ["HOME"]
-
+        if rospy.has_param("~tf_hz"):
+            self.tf_hz = rospy.get_param("~tf_hz")
+        else:
+            self.tf_hz = 100
         if rospy.has_param("~tags"):
             tags = rospy.get_param("~tags")
         else:
@@ -124,7 +127,7 @@ class DemoRecorder:
 
     def record(self):
         """Query tf tree and store target and actual ee poses (format: nPoints x [x, y, z, qx, qy, qz, qw, time_stamp])"""
-        rate = rospy.Rate(100)
+        rate = rospy.Rate(self.tf_hz)
         while not rospy.is_shutdown():
             try:
                 # base-to-left-ee (actual)
@@ -134,13 +137,13 @@ class DemoRecorder:
                     rospy.Time(),
                 )
                 new_actual_left_pose = np.zeros((1, 8))
-                new_actual_left_pose[0, 1] = t.transform.translation.x
-                new_actual_left_pose[0, 2] = t.transform.translation.y
-                new_actual_left_pose[0, 3] = t.transform.translation.z
-                new_actual_left_pose[0, 4] = t.transform.rotation.x
-                new_actual_left_pose[0, 5] = t.transform.rotation.y
-                new_actual_left_pose[0, 6] = t.transform.rotation.z
-                new_actual_left_pose[0, 7] = t.transform.rotation.w
+                new_actual_left_pose[0, 0] = t.transform.translation.x
+                new_actual_left_pose[0, 1] = t.transform.translation.y
+                new_actual_left_pose[0, 2] = t.transform.translation.z
+                new_actual_left_pose[0, 3] = t.transform.rotation.x
+                new_actual_left_pose[0, 4] = t.transform.rotation.y
+                new_actual_left_pose[0, 5] = t.transform.rotation.z
+                new_actual_left_pose[0, 6] = t.transform.rotation.w
                 new_actual_left_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
@@ -158,13 +161,13 @@ class DemoRecorder:
                     rospy.Time(),
                 )
                 new_actual_right_pose = np.zeros((1, 8))
-                new_actual_right_pose[0, 1] = t.transform.translation.x
-                new_actual_right_pose[0, 2] = t.transform.translation.y
-                new_actual_right_pose[0, 3] = t.transform.translation.z
-                new_actual_right_pose[0, 4] = t.transform.rotation.x
-                new_actual_right_pose[0, 5] = t.transform.rotation.y
-                new_actual_right_pose[0, 6] = t.transform.rotation.z
-                new_actual_right_pose[0, 7] = t.transform.rotation.w
+                new_actual_right_pose[0, 0] = t.transform.translation.x
+                new_actual_right_pose[0, 1] = t.transform.translation.y
+                new_actual_right_pose[0, 2] = t.transform.translation.z
+                new_actual_right_pose[0, 3] = t.transform.rotation.x
+                new_actual_right_pose[0, 4] = t.transform.rotation.y
+                new_actual_right_pose[0, 5] = t.transform.rotation.z
+                new_actual_right_pose[0, 6] = t.transform.rotation.w
                 new_actual_right_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
@@ -182,13 +185,13 @@ class DemoRecorder:
                     rospy.Time(),
                 )
                 new_target_left_pose = np.zeros((1, 8))
-                new_target_left_pose[0, 1] = t.transform.translation.x
-                new_target_left_pose[0, 2] = t.transform.translation.y
-                new_target_left_pose[0, 3] = t.transform.translation.z
-                new_target_left_pose[0, 4] = t.transform.rotation.x
-                new_target_left_pose[0, 5] = t.transform.rotation.y
-                new_target_left_pose[0, 6] = t.transform.rotation.z
-                new_target_left_pose[0, 7] = t.transform.rotation.w
+                new_target_left_pose[0, 0] = t.transform.translation.x
+                new_target_left_pose[0, 1] = t.transform.translation.y
+                new_target_left_pose[0, 2] = t.transform.translation.z
+                new_target_left_pose[0, 3] = t.transform.rotation.x
+                new_target_left_pose[0, 4] = t.transform.rotation.y
+                new_target_left_pose[0, 5] = t.transform.rotation.z
+                new_target_left_pose[0, 6] = t.transform.rotation.w
                 new_target_left_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
@@ -206,13 +209,13 @@ class DemoRecorder:
                     rospy.Time(),
                 )
                 new_target_right_pose = np.zeros((1, 8))
-                new_target_right_pose[0, 1] = t.transform.translation.x
-                new_target_right_pose[0, 2] = t.transform.translation.y
-                new_target_right_pose[0, 3] = t.transform.translation.z
-                new_target_right_pose[0, 4] = t.transform.rotation.x
-                new_target_right_pose[0, 5] = t.transform.rotation.y
-                new_target_right_pose[0, 6] = t.transform.rotation.z
-                new_target_right_pose[0, 7] = t.transform.rotation.w
+                new_target_right_pose[0, 0] = t.transform.translation.x
+                new_target_right_pose[0, 1] = t.transform.translation.y
+                new_target_right_pose[0, 2] = t.transform.translation.z
+                new_target_right_pose[0, 3] = t.transform.rotation.x
+                new_target_right_pose[0, 4] = t.transform.rotation.y
+                new_target_right_pose[0, 5] = t.transform.rotation.z
+                new_target_right_pose[0, 6] = t.transform.rotation.w
                 new_target_right_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
@@ -252,6 +255,8 @@ class DemoRecorder:
         np.save(f"{self.save_folder}/data_right_gripper.npy", self.data_right_gripper)
         for tag in self.data_tags:
             np.save(f"{self.save_folder}/data_pose_tag_{tag}.npy", self.data_tags[tag])
+
+        rospy.loginfo(f"Saving complete")
 
 
 if __name__ == "__main__":
