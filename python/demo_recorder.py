@@ -28,7 +28,7 @@ class DemoRecorder:
             tags = []
 
         # Set dump file on node shutdown
-        rospy.on_shutdown(self.dump_data)
+        rospy.on_shutdown(self.save_data)
 
         # Set up tf2 listener
         self.tf_buffer = tf2_ros.Buffer()
@@ -38,20 +38,20 @@ class DemoRecorder:
         rospy.sleep(1)
 
         # Init ee pose recorder
-        self.actual_left_pose_data = np.zeros((1, 8))
-        self.actual_right_pose_data = np.zeros((1, 8))
-        self.target_left_pose_data = np.zeros((1, 8))
-        self.target_right_pose_data = np.zeros((1, 8))
+        self.data_actual_left_pose = np.zeros((1, 8))
+        self.data_actual_right_pose = np.zeros((1, 8))
+        self.data_target_left_pose = np.zeros((1, 8))
+        self.data_target_right_pose = np.zeros((1, 8))
 
         # Init joint state recorder
-        self.joints_data = np.zeros((1, 26))
+        self.data_joints = np.zeros((1, 26))
         self.sub_joint_state = rospy.Subscriber(
             "/joint_states", JointState, self.cb_joint_state
         )
 
         # Init left/right gripper recorder
-        self.left_gripper_data = np.zeros((1, 3))
-        self.right_gripper_data = np.zeros((1, 3))
+        self.data_left_gripper = np.zeros((1, 3))
+        self.data_right_gripper = np.zeros((1, 3))
         self.sub_left_gripper = rospy.Subscriber(
             "/gripper_left_controller/command", JointTrajectory, self.cb_left_gripper
         )
@@ -60,9 +60,9 @@ class DemoRecorder:
         )
 
         # Init recorder(s) for april tags
-        self.tags_data = {}
+        self.data_tags = {}
         for tag in tags:
-            self.tags_data[int(tag)] = np.zeros((1, 8))
+            self.data_tags[int(tag)] = np.zeros((1, 8))
             rospy.Subscriber(
                 f"/inria_orbbec_tags/pose_tag_{tag}",
                 PoseStamped,
@@ -70,13 +70,15 @@ class DemoRecorder:
                 (int(tag)),
             )
 
+        rospy.loginfo(f"Demo recorder initialized")
+
     def cb_joint_state(self, msg: JointState):
         """Store joints state data (format: nPoints x [j1, ..., j25, time_stamp])"""
         new_joints = np.zeros((1, 26))
         for i in range(25):
             new_joints[0, i] = msg.position[i]
         new_joints[0, -1] = msg.header.stamp.secs + 10**-9 * msg.header.stamp.nsecs
-        self.joints_data = np.append(self.joints_data, new_joints, 0)
+        self.data_joints = np.append(self.data_joints, new_joints, 0)
 
     def cb_left_gripper(self, msg: JointTrajectory):
         """Store left gripper data (format: nPoints x [joint_left, joint_right, time_stamp])"""
@@ -88,7 +90,7 @@ class DemoRecorder:
             msg.joint_names.index("gripper_left_right_finger_joint")
         ]
         new_left_gripper[0, 2] = msg.header.stamp.secs + 10**-9 * msg.header.stamp.nsecs
-        self.left_gripper_data = np.append(self.left_gripper_data, new_left_gripper, 0)
+        self.data_left_gripper = np.append(self.data_left_gripper, new_left_gripper, 0)
 
     def cb_right_gripper(self, msg: JointTrajectory):
         """Store right gripper data (format: nPoints x [joint_left, joint_right, time_stamp])"""
@@ -102,8 +104,8 @@ class DemoRecorder:
         new_right_gripper[0, 2] = (
             msg.header.stamp.secs + 10**-9 * msg.header.stamp.nsecs
         )
-        self.right_gripper_data = np.append(
-            self.right_gripper_data, new_right_gripper, 0
+        self.data_right_gripper = np.append(
+            self.data_right_gripper, new_right_gripper, 0
         )
 
     def cb_tag(self, msg: PoseStamped, args: int):
@@ -118,11 +120,10 @@ class DemoRecorder:
         new_tag[0, 5] = msg.pose.orientation.z
         new_tag[0, 6] = msg.pose.orientation.w
         new_tag[0, 7] = msg.header.stamp.secs + 10**-9 * msg.header.stamp.nsecs
-        self.tags_data[tag_id] = np.append(self.tags_data[tag_id], new_tag, 0)
+        self.data_tags[tag_id] = np.append(self.data_tags[tag_id], new_tag, 0)
 
     def record(self):
         """Query tf tree and store target and actual ee poses (format: nPoints x [x, y, z, qx, qy, qz, qw, time_stamp])"""
-        rospy.loginfo(f"Start recording")
         rate = rospy.Rate(100)
         while not rospy.is_shutdown():
             try:
@@ -131,7 +132,6 @@ class DemoRecorder:
                     "base_link",
                     "gripper_left_grasping_frame",
                     rospy.Time(),
-                    rospy.Duration(1.0),
                 )
                 new_actual_left_pose = np.zeros((1, 8))
                 new_actual_left_pose[0, 1] = t.transform.translation.x
@@ -144,8 +144,8 @@ class DemoRecorder:
                 new_actual_left_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
-                self.actual_left_pose_data = np.append(
-                    self.actual_left_pose_data, new_actual_left_pose, 0
+                self.data_actual_left_pose = np.append(
+                    self.data_actual_left_pose, new_actual_left_pose, 0
                 )
             except Exception as err:
                 rospy.logwarn(err)
@@ -156,7 +156,6 @@ class DemoRecorder:
                     "base_link",
                     "gripper_right_grasping_frame",
                     rospy.Time(),
-                    rospy.Duration(1.0),
                 )
                 new_actual_right_pose = np.zeros((1, 8))
                 new_actual_right_pose[0, 1] = t.transform.translation.x
@@ -169,8 +168,8 @@ class DemoRecorder:
                 new_actual_right_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
-                self.actual_right_pose_data = np.append(
-                    self.actual_right_pose_data, new_actual_right_pose, 0
+                self.data_actual_right_pose = np.append(
+                    self.data_actual_right_pose, new_actual_right_pose, 0
                 )
             except Exception as err:
                 rospy.logwarn(err)
@@ -181,7 +180,6 @@ class DemoRecorder:
                     "ci/base_link",
                     "ci/gripper_left_grasping_frame",
                     rospy.Time(),
-                    rospy.Duration(1.0),
                 )
                 new_target_left_pose = np.zeros((1, 8))
                 new_target_left_pose[0, 1] = t.transform.translation.x
@@ -194,8 +192,8 @@ class DemoRecorder:
                 new_target_left_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
-                self.target_left_pose_data = np.append(
-                    self.target_left_pose_data, new_target_left_pose, 0
+                self.data_target_left_pose = np.append(
+                    self.data_target_left_pose, new_target_left_pose, 0
                 )
             except Exception as err:
                 rospy.logwarn(err)
@@ -206,7 +204,6 @@ class DemoRecorder:
                     "ci/base_link",
                     "ci/gripper_right_grasping_frame",
                     rospy.Time(),
-                    rospy.Duration(1.0),
                 )
                 new_target_right_pose = np.zeros((1, 8))
                 new_target_right_pose[0, 1] = t.transform.translation.x
@@ -219,53 +216,42 @@ class DemoRecorder:
                 new_target_right_pose[0, 7] = (
                     t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
                 )
-                self.target_right_pose_data = np.append(
-                    self.target_right_pose_data, new_target_right_pose, 0
+                self.data_target_right_pose = np.append(
+                    self.data_target_right_pose, new_target_right_pose, 0
                 )
             except Exception as err:
                 rospy.logwarn(err)
 
             rate.sleep()
 
-    def dump_data(self):
-        self.sub_joint_state.unregister()
-        self.sub_left_gripper.unregister()
-        self.sub_right_gripper.unregister()
-
-        rospy.logwarn(
+    def save_data(self):
+        rospy.loginfo(
             f"Finished recording, saving recorded data into '{self.save_folder}'..."
         )
 
-        np.save(f"{self.save_folder}/joints_data.npy", self.joints_data)
+        np.save(f"{self.save_folder}/data_joints.npy", self.data_joints)
         np.save(
-            f"{self.save_folder}/actual_left_pose_data.npy", self.actual_left_pose_data
+            f"{self.save_folder}/data_actual_left_pose.npy", self.data_actual_left_pose
         )
         np.save(
-            f"{self.save_folder}/actual_right_pose_data.npy",
-            self.actual_right_pose_data,
+            f"{self.save_folder}/data_actual_right_pose.npy",
+            self.data_actual_right_pose,
         )
         np.save(
-            f"{self.save_folder}/target_left_pose_data.npy", self.target_left_pose_data
+            f"{self.save_folder}/data_target_left_pose.npy", self.data_target_left_pose
         )
         np.save(
-            f"{self.save_folder}/target_right_pose_data.npy",
-            self.target_right_pose_data,
+            f"{self.save_folder}/data_target_right_pose.npy",
+            self.data_target_right_pose,
         )
         np.save(
-            f"{self.save_folder}/target_right_pose_data.npy",
-            self.target_right_pose_data,
+            f"{self.save_folder}/data_target_right_pose.npy",
+            self.data_target_right_pose,
         )
-        np.save(f"{self.save_folder}/left_gripper_data.npy", self.left_gripper_data)
-        np.save(f"{self.save_folder}/right_gripper_data.npy", self.right_gripper_data)
-        for tag in self.tags_data:
-            np.save(f"{self.save_folder}/pose_tag_{tag}.npy", self.tags_data[tag])
-
-        for tag in self.tags_data:
-            np.savetxt(
-                f"{self.save_folder}/pose_tag_{tag}.csv",
-                self.tags_data[tag],
-                delimiter=",",
-            )
+        np.save(f"{self.save_folder}/data_left_gripper.npy", self.data_left_gripper)
+        np.save(f"{self.save_folder}/data_right_gripper.npy", self.data_right_gripper)
+        for tag in self.data_tags:
+            np.save(f"{self.save_folder}/data_pose_tag_{tag}.npy", self.data_tags[tag])
 
 
 if __name__ == "__main__":
