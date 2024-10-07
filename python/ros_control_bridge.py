@@ -132,10 +132,12 @@ def time_from_start_cb(msg: Float32):
                 "Trying to set a 'time_from_start' too low. It must be >= 0.1secs"
             )
 
+
 def control_initiator_cb(msg):
     global exit_
     if not msg.data:
         exit_ = True
+
 
 if __name__ == "__main__":
     rospy.init_node("ros_control_bridge", anonymous=True)
@@ -208,7 +210,9 @@ if __name__ == "__main__":
     rospy.Subscriber("cartesian/solution", JointState, io_callback)
 
     # Set up a subscriber to kill the node
-    rospy.Subscriber('/streamdeck/ros_control_bridge_initiator', Bool, control_initiator_cb)
+    rospy.Subscriber(
+        "/streamdeck/ros_control_bridge_initiator", Bool, control_initiator_cb
+    )
 
     while not rospy.is_shutdown():
         if exit_:
@@ -217,7 +221,6 @@ if __name__ == "__main__":
 
     rospy.loginfo("Exiting ros_control_bridge")
     os._exit(0)
-
 
     rospy.loginfo("Exiting ros_control_bridge")
     os._exit(0)
