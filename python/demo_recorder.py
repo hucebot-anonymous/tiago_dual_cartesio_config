@@ -44,16 +44,18 @@ class DemoRecorder:
         self.target_right_pose_data = np.zeros((1, 8))
 
         # Init joint state recorder
-        self.joints_data = np.zeros((1, 28))
-        rospy.Subscriber("/joint_states", JointState, self.cb_joint_state)
+        self.joints_data = np.zeros((1, 26))
+        self.sub_joint_state = rospy.Subscriber(
+            "/joint_states", JointState, self.cb_joint_state
+        )
 
         # Init left/right gripper recorder
         self.left_gripper_data = np.zeros((1, 3))
         self.right_gripper_data = np.zeros((1, 3))
-        rospy.Subscriber(
+        self.sub_left_gripper = rospy.Subscriber(
             "/gripper_left_controller/command", JointTrajectory, self.cb_left_gripper
         )
-        rospy.Subscriber(
+        self.sub_right_gripper = rospy.Subscriber(
             "/gripper_right_controller/command", JointTrajectory, self.cb_right_gripper
         )
 
@@ -61,12 +63,17 @@ class DemoRecorder:
         self.tags_data = {}
         for tag in tags:
             self.tags_data[int(tag)] = np.zeros((1, 8))
-            rospy.Subscriber(f"/pose_tag_{tag}", PoseStamped, self.cb_tag, (int(tag)))
+            rospy.Subscriber(
+                f"/inria_orbbec_tags/pose_tag_{tag}",
+                PoseStamped,
+                self.cb_tag,
+                (int(tag)),
+            )
 
     def cb_joint_state(self, msg: JointState):
-        """Store joints state data (format: nPoints x [j1, ..., j27, time_stamp])"""
-        new_joints = np.zeros((1, 28))
-        for i in range(27):
+        """Store joints state data (format: nPoints x [j1, ..., j25, time_stamp])"""
+        new_joints = np.zeros((1, 26))
+        for i in range(25):
             new_joints[0, i] = msg.position[i]
         new_joints[0, -1] = msg.header.stamp.secs + 10**-9 * msg.header.stamp.nsecs
         self.joints_data = np.append(self.joints_data, new_joints, 0)
@@ -101,28 +108,30 @@ class DemoRecorder:
 
     def cb_tag(self, msg: PoseStamped, args: int):
         """Store tags data (format: nTagsx [nPoints x [x, y, z, qx, qy, qz, qw, time_stamp]])"""
-        tag_id = int(args[0])
+        tag_id = args
         new_tag = np.zeros((1, 8))
         new_tag[0, 0] = msg.pose.position.x
         new_tag[0, 1] = msg.pose.position.y
         new_tag[0, 2] = msg.pose.position.z
         new_tag[0, 3] = msg.pose.position.x
-        new_tag[0, 4] = msg.pose.position.y
-        new_tag[0, 5] = msg.pose.position.z
-        new_tag[0, 6] = msg.pose.position.w
+        new_tag[0, 4] = msg.pose.orientation.y
+        new_tag[0, 5] = msg.pose.orientation.z
+        new_tag[0, 6] = msg.pose.orientation.w
         new_tag[0, 7] = msg.header.stamp.secs + 10**-9 * msg.header.stamp.nsecs
         self.tags_data[tag_id] = np.append(self.tags_data[tag_id], new_tag, 0)
 
     def record(self):
         """Query tf tree and store target and actual ee poses (format: nPoints x [x, y, z, qx, qy, qz, qw, time_stamp])"""
+        rospy.loginfo(f"Start recording")
         rate = rospy.Rate(100)
         while not rospy.is_shutdown():
-            now = rospy.get_rostime()
-
             try:
                 # base-to-left-ee (actual)
                 t = self.tf_buffer.lookup_transform(
-                    "base_link", "gripper_left_grasping_frame", now
+                    "base_link",
+                    "gripper_left_grasping_frame",
+                    rospy.Time(),
+                    rospy.Duration(1.0),
                 )
                 new_actual_left_pose = np.zeros((1, 8))
                 new_actual_left_pose[0, 1] = t.transform.translation.x
@@ -132,7 +141,9 @@ class DemoRecorder:
                 new_actual_left_pose[0, 5] = t.transform.rotation.y
                 new_actual_left_pose[0, 6] = t.transform.rotation.z
                 new_actual_left_pose[0, 7] = t.transform.rotation.w
-                new_actual_left_pose[0, 7] = now.to_sec()
+                new_actual_left_pose[0, 7] = (
+                    t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
+                )
                 self.actual_left_pose_data = np.append(
                     self.actual_left_pose_data, new_actual_left_pose, 0
                 )
@@ -142,7 +153,10 @@ class DemoRecorder:
             try:
                 # base-to-right-ee (actual)
                 t = self.tf_buffer.lookup_transform(
-                    "base_link", "gripper_right_grasping_frame", now
+                    "base_link",
+                    "gripper_right_grasping_frame",
+                    rospy.Time(),
+                    rospy.Duration(1.0),
                 )
                 new_actual_right_pose = np.zeros((1, 8))
                 new_actual_right_pose[0, 1] = t.transform.translation.x
@@ -152,7 +166,9 @@ class DemoRecorder:
                 new_actual_right_pose[0, 5] = t.transform.rotation.y
                 new_actual_right_pose[0, 6] = t.transform.rotation.z
                 new_actual_right_pose[0, 7] = t.transform.rotation.w
-                new_actual_right_pose[0, 7] = now.to_sec()
+                new_actual_right_pose[0, 7] = (
+                    t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
+                )
                 self.actual_right_pose_data = np.append(
                     self.actual_right_pose_data, new_actual_right_pose, 0
                 )
@@ -162,7 +178,10 @@ class DemoRecorder:
             try:
                 # base-to-left-ee (target)
                 t = self.tf_buffer.lookup_transform(
-                    "ci/base_link", "ci/gripper_left_grasping_frame", now
+                    "ci/base_link",
+                    "ci/gripper_left_grasping_frame",
+                    rospy.Time(),
+                    rospy.Duration(1.0),
                 )
                 new_target_left_pose = np.zeros((1, 8))
                 new_target_left_pose[0, 1] = t.transform.translation.x
@@ -172,7 +191,9 @@ class DemoRecorder:
                 new_target_left_pose[0, 5] = t.transform.rotation.y
                 new_target_left_pose[0, 6] = t.transform.rotation.z
                 new_target_left_pose[0, 7] = t.transform.rotation.w
-                new_target_left_pose[0, 7] = now.to_sec()
+                new_target_left_pose[0, 7] = (
+                    t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
+                )
                 self.target_left_pose_data = np.append(
                     self.target_left_pose_data, new_target_left_pose, 0
                 )
@@ -182,7 +203,10 @@ class DemoRecorder:
             try:
                 # base-to-right-ee (target)
                 t = self.tf_buffer.lookup_transform(
-                    "ci/base_link", "ci/gripper_right_grasping_frame", now
+                    "ci/base_link",
+                    "ci/gripper_right_grasping_frame",
+                    rospy.Time(),
+                    rospy.Duration(1.0),
                 )
                 new_target_right_pose = np.zeros((1, 8))
                 new_target_right_pose[0, 1] = t.transform.translation.x
@@ -192,7 +216,9 @@ class DemoRecorder:
                 new_target_right_pose[0, 5] = t.transform.rotation.y
                 new_target_right_pose[0, 6] = t.transform.rotation.z
                 new_target_right_pose[0, 7] = t.transform.rotation.w
-                new_target_right_pose[0, 7] = now.to_sec()
+                new_target_right_pose[0, 7] = (
+                    t.header.stamp.secs + 10**-9 * t.header.stamp.nsecs
+                )
                 self.target_right_pose_data = np.append(
                     self.target_right_pose_data, new_target_right_pose, 0
                 )
@@ -202,37 +228,37 @@ class DemoRecorder:
             rate.sleep()
 
     def dump_data(self):
-        rospy.logwarn(f"Dumping recorded data into '{self.save_folder}'")
-        np.savetxt(
-            f"{self.save_folder}/actual_left_pose_data.csv",
-            self.actual_left_pose_data,
-            delimiter=",",
+        self.sub_joint_state.unregister()
+        self.sub_left_gripper.unregister()
+        self.sub_right_gripper.unregister()
+
+        rospy.logwarn(
+            f"Finished recording, saving recorded data into '{self.save_folder}'..."
         )
-        np.savetxt(
-            f"{self.save_folder}/actual_right_pose_data.csv",
+
+        np.save(f"{self.save_folder}/joints_data.npy", self.joints_data)
+        np.save(
+            f"{self.save_folder}/actual_left_pose_data.npy", self.actual_left_pose_data
+        )
+        np.save(
+            f"{self.save_folder}/actual_right_pose_data.npy",
             self.actual_right_pose_data,
-            delimiter=",",
         )
-        np.savetxt(
-            f"{self.save_folder}/target_left_pose_data.csv",
-            self.target_left_pose_data,
-            delimiter=",",
+        np.save(
+            f"{self.save_folder}/target_left_pose_data.npy", self.target_left_pose_data
         )
-        np.savetxt(
-            f"{self.save_folder}/target_right_pose_data.csv",
+        np.save(
+            f"{self.save_folder}/target_right_pose_data.npy",
             self.target_right_pose_data,
-            delimiter=",",
         )
-        np.savetxt(
-            f"{self.save_folder}/left_gripper_data.csv",
-            self.left_gripper_data,
-            delimiter=",",
+        np.save(
+            f"{self.save_folder}/target_right_pose_data.npy",
+            self.target_right_pose_data,
         )
-        np.savetxt(
-            f"{self.save_folder}/right_gripper_data.csv",
-            self.right_gripper_data,
-            delimiter=",",
-        )
+        np.save(f"{self.save_folder}/left_gripper_data.npy", self.left_gripper_data)
+        np.save(f"{self.save_folder}/right_gripper_data.npy", self.right_gripper_data)
+        for tag in self.tags_data:
+            np.save(f"{self.save_folder}/pose_tag_{tag}.npy", self.tags_data[tag])
 
         for tag in self.tags_data:
             np.savetxt(
