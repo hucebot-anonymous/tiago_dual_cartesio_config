@@ -210,8 +210,14 @@ if __name__ == "__main__":
     # Set up a subscriber to kill the node
     rospy.Subscriber('/streamdeck/ros_control_bridge_initiator', Bool, control_initiator_cb)
 
-    while not exit_ or not rospy.is_shutdown():
+    while not rospy.is_shutdown():
+        if exit_:
+            break
         rospy.spin()
+
+    rospy.loginfo("Exiting ros_control_bridge")
+    os._exit(0)
+
 
     rospy.loginfo("Exiting ros_control_bridge")
     os._exit(0)
