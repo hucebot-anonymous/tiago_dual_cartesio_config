@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import numpy as np
 import threading
 import os
@@ -17,25 +18,30 @@ class DemoRecorder:
         rospy.init_node("demo_recorder")
 
         # Load params
-        if rospy.has_param("~save_folder"):
-            self.save_folder = rospy.get_param("~save_folder")
-        else:
-            self.save_folder = os.environ["HOME"]
-        if rospy.has_param("~tf_hz"):
-            self.tf_hz = rospy.get_param("~tf_hz")
-        else:
-            self.tf_hz = 100
         if rospy.has_param("~tags"):
             tags = rospy.get_param("~tags")
         else:
             tags = []
+        if rospy.has_param("~folder_path"):
+            folder_path = rospy.get_param("~folder_path")
+        else:
+            folder_path = os.environ["HOME"]
+        if rospy.has_param("~tf_hz"):
+            self.tf_hz = rospy.get_param("~tf_hz")
+        else:
+            self.tf_hz = 100
+
+        now = datetime.now()  # current date and time
+        date_time = now.strftime("%m-%d-%Y_%H-%M-%S")
+        self.save_folder = os.path.join(folder_path, date_time)
+        os.mkdir(self.save_folder)
 
         # Set dump file on node shutdown
         rospy.on_shutdown(self.save_data)
 
         # Set up tf2 listener
         self.tf_buffer = tf2_ros.Buffer()
-        tf2_ros.TransformListener(self.tf_buffer)
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
         # Wait for tf listener
         rospy.sleep(1)
@@ -228,6 +234,11 @@ class DemoRecorder:
             rate.sleep()
 
     def save_data(self):
+        self.tf_listener.unregister()
+        self.sub_joint_state.unregister()
+        self.sub_left_gripper.unregister()
+        self.sub_right_gripper.unregister()
+
         rospy.loginfo(
             f"Finished recording, saving recorded data into '{self.save_folder}'..."
         )

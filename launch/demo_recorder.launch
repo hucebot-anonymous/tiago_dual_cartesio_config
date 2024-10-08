@@ -1,6 +1,6 @@
 <launch>
   <node pkg="tiago_dual_cartesio_config" type="demo_recorder.py" name="demo_recorder_node" output="screen">
-    <rosparam param="save_folder">"/home/forest_ws/src/tiago_dual_cartesio_config/python/demo"</rosparam>
+    <rosparam param="folder_path">"/home/forest_ws/src/tiago_dual_cartesio_config/python/demo"</rosparam>
     <rosparam param="tags">[0]</rosparam>
     <rosparam param="tf_hz">100</rosparam>
   </node>
