@@ -68,7 +68,7 @@ def fill_cms_msg(data: JointState, cmd_msg: JointTrajectory, send_velocity=True)
     return cmd_msg
 
 
-def left_ft_callback(data: WrenchStamped):
+def left_ft_cb(data: WrenchStamped):
     global wrist_force_limit
     global wrist_torque_limit
     global send_commands_
@@ -89,7 +89,7 @@ def left_ft_callback(data: WrenchStamped):
         send_commands_ = False
 
 
-def right_ft_callback(data: WrenchStamped):
+def right_ft_cb(data: WrenchStamped):
     global wrist_force_limit
     global wrist_torque_limit
     global send_commands_
@@ -158,25 +158,25 @@ def init_cmd_msg(cmd_msg: JointTrajectory, joint_names):
     return cmd_msg
 
 
-def set_send_commands_(req: SetBool):
+def set_send_commands_cb(req: SetBool):
     global send_commands_
     send_commands_ = req.data
     response = SetBoolResponse()
     response.success = True
-    response.message = f"send_commands_: {req.data}"
-    rospy.loginfo(f"Setting 'send_commands_: {req.data}'")
+    response.message = f"send_commands: {req.data}"
+    rospy.loginfo(f"Setting 'send_commands: {req.data}'")
     return response
 
 
-def time_from_start__cb(msg: Float32):
+def set_time_from_start_cb(msg: Float32):
     global time_from_start_
     if msg.data != time_from_start_:
         if msg.data >= 0.1:
             time_from_start_ = msg.data
-            rospy.loginfo(f"Setting 'time_from_start_: {time_from_start_}'")
+            rospy.loginfo(f"Setting 'time_from_start: {time_from_start_}'")
         else:
             rospy.logwarn(
-                "Trying to set a too low 'time_from_start_'. It must be >= 0.1secs"
+                "Trying to set a too low 'time_from_start'. It must be >= 0.1secs"
             )
 
 
@@ -242,17 +242,17 @@ if __name__ == "__main__":
     )
 
     # Get (possible) enable/disable parameter and set up service to change it
-    if rospy.has_param("~send_commands_"):
-        send_commands_ = rospy.get_param("~send_commands_")
-    rospy.Service("ros_control_bridge/send_commands_", SetBool, set_send_commands_)
+    if rospy.has_param("~send_commands"):
+        send_commands_ = rospy.get_param("~send_commands")
+    rospy.Service("ros_control_bridge/send_commands", SetBool, set_send_commands_cb)
     rospy.loginfo(f"send_commands_: {send_commands_}")
 
-    # Get (possible) 'time_from_start_' parameter and set up subscriber to change it
-    if rospy.has_param("~time_from_start_"):
-        time_from_start_ = rospy.get_param("~time_from_start_")
-    rospy.loginfo(f"time_from_start_: {time_from_start_}")
+    # Get (possible) 'time_from_start' parameter and set up subscriber to change it
+    if rospy.has_param("~time_from_start"):
+        time_from_start_ = rospy.get_param("~time_from_start")
+    rospy.loginfo(f"time_from_start: {time_from_start_}")
     rospy.Subscriber(
-        "ros_control_bridge/time_from_start_", Float32, time_from_start__cb
+        "ros_control_bridge/time_from_start", Float32, set_time_from_start_cb
     )
 
     # Set up subscriber to CartesI/O solution topic
@@ -270,8 +270,8 @@ if __name__ == "__main__":
         wrist_torque_limit = rospy.get_param("~wrist_torque_limit")
     rospy.loginfo(f"wrist_force_limit: {wrist_force_limit} N")
     rospy.loginfo(f"wrist_torque_limit: {wrist_torque_limit} Nm")
-    rospy.Subscriber("wrist_left_ft/corrected", WrenchStamped, left_ft_callback)
-    rospy.Subscriber("wrist_right_ft/corrected", WrenchStamped, right_ft_callback)
+    rospy.Subscriber("wrist_left_ft/corrected", WrenchStamped, left_ft_cb)
+    rospy.Subscriber("wrist_right_ft/corrected", WrenchStamped, right_ft_cb)
 
     while not rospy.is_shutdown():
         if exit_:
