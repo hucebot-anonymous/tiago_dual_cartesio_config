@@ -64,7 +64,7 @@ def fill_cms_msg(data: JointState, cmd_msg: JointTrajectory, send_velocity=True)
             cmd_msg.points[0].velocities[cmd_msg.joint_names.index(joint_name)] = (
                 data.velocity[data.name.index(joint_name)]
             )
-    cmd_msg.points[0].time_from_start_ = rospy.Duration(time_from_start_)
+    cmd_msg.points[0].time_from_start = rospy.Duration(time_from_start_)
     return cmd_msg
 
 
