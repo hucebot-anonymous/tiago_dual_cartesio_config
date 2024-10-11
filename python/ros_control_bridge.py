@@ -4,30 +4,33 @@ import rospy
 import os
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, WrenchStamped
 from std_msgs.msg import Float32, Bool
 from std_srvs.srv import SetBool, SetBoolResponse
 
-head_cmd_pub = None
-head_cmd_msg = JointTrajectory()
+head_cmd_pub_ = None
+head_cmd_msg_ = JointTrajectory()
 
-left_arm_cmd_pub = None
-left_arm_cmd_msg = JointTrajectory()
+left_arm_cmd_pub_ = None
+left_arm_cmd_msg_ = JointTrajectory()
 
-right_arm_cmd_pub = None
-right_arm_cmd_msg = JointTrajectory()
+right_arm_cmd_pub_ = None
+right_arm_cmd_msg_ = JointTrajectory()
 
-torso_cmd_pub = None
-torso_cmd_msg = JointTrajectory()
+torso_cmd_pub_ = None
+torso_cmd_msg_ = JointTrajectory()
 
-mobile_base_cmd_pub = None
-mobile_base_cmd_msg = Twist()
+mobile_base_cmd_pub_ = None
+mobile_base_cmd_msg_ = Twist()
 
-time_from_start = 0.2
+time_from_start_ = 0.2
+
+wrist_force_limit = 20
+wrist_torque_limit = 2
 
 exit_ = False
 
-send_commands = True
+send_commands_ = True
 
 SEND_VELOCITY = False
 
@@ -52,7 +55,7 @@ def set_initial_configuration(data: JointState):
 
 
 def fill_cms_msg(data: JointState, cmd_msg: JointTrajectory, send_velocity=True):
-    global time_from_start
+    global time_from_start_
     for joint_name in cmd_msg.joint_names:
         cmd_msg.points[0].positions[cmd_msg.joint_names.index(joint_name)] = (
             data.position[data.name.index(joint_name)]
@@ -61,46 +64,76 @@ def fill_cms_msg(data: JointState, cmd_msg: JointTrajectory, send_velocity=True)
             cmd_msg.points[0].velocities[cmd_msg.joint_names.index(joint_name)] = (
                 data.velocity[data.name.index(joint_name)]
             )
-    cmd_msg.points[0].time_from_start = rospy.Duration(time_from_start)
+    cmd_msg.points[0].time_from_start_ = rospy.Duration(time_from_start_)
     return cmd_msg
 
 
+def left_ft_callback(data: WrenchStamped):
+    global wrist_force_limit
+    global wrist_torque_limit
+    global send_commands_
+    if (
+        data.wrench.force.x > wrist_force_limit
+        or data.wrench.force.y > wrist_force_limit
+        or data.wrench.force.z > wrist_force_limit
+    ):
+        rospy.logwarn(f"Exceeded wrist force limit. Motion disabled")
+        send_commands_ = False
+
+    if (
+        data.wrench.torque.x > wrist_torque_limit
+        or data.wrench.torque.y > wrist_torque_limit
+        or data.wrench.torque.z > wrist_torque_limit
+    ):
+        rospy.logwarn(f"Exceeded wrist torque limit. Motion disabled")
+        send_commands_ = False
+
+
+def right_ft_callback(data: WrenchStamped):
+    global wrist_force_limit
+    global wrist_torque_limit
+    global send_commands_
+    pass
+
+
 def io_callback(data: JointState):
-    global head_cmd_pub, head_cmd_msg
-    global left_arm_cmd_pub, left_arm_cmd_msg
-    global right_arm_cmd_pub, right_arm_cmd_msg
-    global torso_cmd_pub, torso_cmd_msg
-    global mobile_base_cmd_pub, mobile_base_cmd_msg
-    global time_from_start
-    global send_commands
+    global head_cmd_pub_, head_cmd_msg_
+    global left_arm_cmd_pub_, left_arm_cmd_msg_
+    global right_arm_cmd_pub_, right_arm_cmd_msg_
+    global torso_cmd_pub_, torso_cmd_msg_
+    global mobile_base_cmd_pub_, mobile_base_cmd_msg_
+    global time_from_start_
+    global send_commands_
 
-    head_cmd_msg = fill_cms_msg(data, head_cmd_msg, send_velocity=SEND_VELOCITY)
-    left_arm_cmd_msg = fill_cms_msg(data, left_arm_cmd_msg, send_velocity=SEND_VELOCITY)
-    right_arm_cmd_msg = fill_cms_msg(
-        data, right_arm_cmd_msg, send_velocity=SEND_VELOCITY
+    head_cmd_msg_ = fill_cms_msg(data, head_cmd_msg_, send_velocity=SEND_VELOCITY)
+    left_arm_cmd_msg_ = fill_cms_msg(
+        data, left_arm_cmd_msg_, send_velocity=SEND_VELOCITY
     )
-    torso_cmd_msg = fill_cms_msg(data, torso_cmd_msg, send_velocity=SEND_VELOCITY)
+    right_arm_cmd_msg_ = fill_cms_msg(
+        data, right_arm_cmd_msg_, send_velocity=SEND_VELOCITY
+    )
+    torso_cmd_msg_ = fill_cms_msg(data, torso_cmd_msg_, send_velocity=SEND_VELOCITY)
 
-    mobile_base_cmd_msg.linear.x = data.velocity[0]
-    mobile_base_cmd_msg.linear.y = data.velocity[1]
-    mobile_base_cmd_msg.linear.z = 0.0
-    mobile_base_cmd_msg.angular.x = 0.0
-    mobile_base_cmd_msg.angular.y = 0.0
-    mobile_base_cmd_msg.angular.z = data.velocity[5]
+    mobile_base_cmd_msg_.linear.x = data.velocity[0]
+    mobile_base_cmd_msg_.linear.y = data.velocity[1]
+    mobile_base_cmd_msg_.linear.z = 0.0
+    mobile_base_cmd_msg_.angular.x = 0.0
+    mobile_base_cmd_msg_.angular.y = 0.0
+    mobile_base_cmd_msg_.angular.z = data.velocity[5]
 
     time = rospy.get_rostime()
 
-    head_cmd_msg.header.stamp = time
-    left_arm_cmd_msg.header.stamp = time
-    right_arm_cmd_msg.header.stamp = time
-    torso_cmd_msg.header.stamp = time
+    head_cmd_msg_.header.stamp = time
+    left_arm_cmd_msg_.header.stamp = time
+    right_arm_cmd_msg_.header.stamp = time
+    torso_cmd_msg_.header.stamp = time
 
-    if send_commands:
-        head_cmd_pub.publish(head_cmd_msg)
-        left_arm_cmd_pub.publish(left_arm_cmd_msg)
-        right_arm_cmd_pub.publish(right_arm_cmd_msg)
-        torso_cmd_pub.publish(torso_cmd_msg)
-        mobile_base_cmd_pub.publish(mobile_base_cmd_msg)
+    if send_commands_:
+        head_cmd_pub_.publish(head_cmd_msg_)
+        left_arm_cmd_pub_.publish(left_arm_cmd_msg_)
+        right_arm_cmd_pub_.publish(right_arm_cmd_msg_)
+        torso_cmd_pub_.publish(torso_cmd_msg_)
+        mobile_base_cmd_pub_.publish(mobile_base_cmd_msg_)
 
 
 def init_cmd_msg(cmd_msg: JointTrajectory, joint_names):
@@ -111,25 +144,25 @@ def init_cmd_msg(cmd_msg: JointTrajectory, joint_names):
     return cmd_msg
 
 
-def set_send_commands(req: SetBool):
-    global send_commands
-    send_commands = req.data
+def set_send_commands_(req: SetBool):
+    global send_commands_
+    send_commands_ = req.data
     response = SetBoolResponse()
     response.success = True
-    response.message = "send_commands set to " + str(req.data)
-    rospy.loginfo(f"Setting send_commands={req.data}")
+    response.message = f"send_commands_: {req.data}"
+    rospy.loginfo(f"Setting 'send_commands_: {req.data}'")
     return response
 
 
-def time_from_start_cb(msg: Float32):
-    global time_from_start
-    if msg.data != time_from_start:
+def time_from_start__cb(msg: Float32):
+    global time_from_start_
+    if msg.data != time_from_start_:
         if msg.data >= 0.1:
-            time_from_start = msg.data
-            rospy.loginfo(f"Setting time_from_start={time_from_start}")
+            time_from_start_ = msg.data
+            rospy.loginfo(f"Setting 'time_from_start_: {time_from_start_}'")
         else:
             rospy.logwarn(
-                "Trying to set a 'time_from_start' too low. It must be >= 0.1secs"
+                "Trying to set a too low 'time_from_start_'. It must be >= 0.1secs"
             )
 
 
@@ -148,16 +181,16 @@ if __name__ == "__main__":
     set_initial_configuration(data)
 
     # Set up command publishers and msgs
-    head_cmd_pub = rospy.Publisher(
+    head_cmd_pub_ = rospy.Publisher(
         "head_controller/command", JointTrajectory, queue_size=1
     )
-    head_cmd_msg = init_cmd_msg(head_cmd_msg, ["head_1_joint", "head_2_joint"])
+    head_cmd_msg_ = init_cmd_msg(head_cmd_msg_, ["head_1_joint", "head_2_joint"])
 
-    left_arm_cmd_pub = rospy.Publisher(
+    left_arm_cmd_pub_ = rospy.Publisher(
         "/arm_left_controller/command", JointTrajectory, queue_size=1
     )
-    left_arm_cmd_msg = init_cmd_msg(
-        left_arm_cmd_msg,
+    left_arm_cmd_msg_ = init_cmd_msg(
+        left_arm_cmd_msg_,
         [
             "arm_left_1_joint",
             "arm_left_2_joint",
@@ -169,11 +202,11 @@ if __name__ == "__main__":
         ],
     )
 
-    right_arm_cmd_pub = rospy.Publisher(
+    right_arm_cmd_pub_ = rospy.Publisher(
         "/arm_right_controller/command", JointTrajectory, queue_size=1
     )
-    right_arm_cmd_msg = init_cmd_msg(
-        right_arm_cmd_msg,
+    right_arm_cmd_msg_ = init_cmd_msg(
+        right_arm_cmd_msg_,
         [
             "arm_right_1_joint",
             "arm_right_2_joint",
@@ -185,26 +218,28 @@ if __name__ == "__main__":
         ],
     )
 
-    torso_cmd_pub = rospy.Publisher(
+    torso_cmd_pub_ = rospy.Publisher(
         "/torso_controller/command", JointTrajectory, queue_size=1
     )
-    torso_cmd_msg = init_cmd_msg(torso_cmd_msg, ["torso_lift_joint"])
+    torso_cmd_msg_ = init_cmd_msg(torso_cmd_msg_, ["torso_lift_joint"])
 
-    mobile_base_cmd_pub = rospy.Publisher(
+    mobile_base_cmd_pub_ = rospy.Publisher(
         "/mobile_base_controller/cmd_vel", Twist, queue_size=1
     )
 
     # Get (possible) enable/disable parameter and set up service to change it
-    if rospy.has_param("~send_commands"):
-        send_commands = rospy.get_param("~send_commands")
-    rospy.Service("ros_control_bridge/send_commands", SetBool, set_send_commands)
-    rospy.loginfo(f"send_commands: {send_commands}")
+    if rospy.has_param("~send_commands_"):
+        send_commands_ = rospy.get_param("~send_commands_")
+    rospy.Service("ros_control_bridge/send_commands_", SetBool, set_send_commands_)
+    rospy.loginfo(f"send_commands_: {send_commands_}")
 
-    # Get (possible) 'time_from_start' parameter and set up subscriber to change it
-    if rospy.has_param("~time_from_start"):
-        time_from_start = rospy.get_param("~time_from_start")
-    rospy.loginfo(f"time_from_start: {time_from_start}")
-    rospy.Subscriber("ros_control_bridge/time_from_start", Float32, time_from_start_cb)
+    # Get (possible) 'time_from_start_' parameter and set up subscriber to change it
+    if rospy.has_param("~time_from_start_"):
+        time_from_start_ = rospy.get_param("~time_from_start_")
+    rospy.loginfo(f"time_from_start_: {time_from_start_}")
+    rospy.Subscriber(
+        "ros_control_bridge/time_from_start_", Float32, time_from_start__cb
+    )
 
     # Set up subscriber to CartesI/O solution topic
     rospy.Subscriber("cartesian/solution", JointState, io_callback)
@@ -214,13 +249,20 @@ if __name__ == "__main__":
         "/streamdeck/ros_control_bridge_initiator", Bool, control_initiator_cb
     )
 
+    # Get (possible) 'wrist_force_limit' parameter and set up ft subscribers for emergency
+    if rospy.has_param("~wrist_force_limit"):
+        wrist_force_limit = rospy.get_param("~wrist_force_limit")
+    if rospy.has_param("~wrist_torque_limit"):
+        wrist_torque_limit = rospy.get_param("~wrist_torque_limit")
+    rospy.loginfo(f"wrist_force_limit: {wrist_force_limit} N")
+    rospy.loginfo(f"wrist_torque_limit: {wrist_torque_limit} Nm")
+    rospy.Subscriber("wrist_left_ft/corrected", WrenchStamped, left_ft_callback)
+    rospy.Subscriber("wrist_right_ft/corrected", WrenchStamped, right_ft_callback)
+
     while not rospy.is_shutdown():
         if exit_:
             break
         rospy.spin()
-
-    rospy.loginfo("Exiting ros_control_bridge")
-    os._exit(0)
 
     rospy.loginfo("Exiting ros_control_bridge")
     os._exit(0)
