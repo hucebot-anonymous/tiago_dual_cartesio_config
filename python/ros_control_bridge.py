@@ -73,19 +73,19 @@ def left_ft_callback(data: WrenchStamped):
     global wrist_torque_limit
     global send_commands_
     if (
-        data.wrench.force.x > wrist_force_limit
-        or data.wrench.force.y > wrist_force_limit
-        or data.wrench.force.z > wrist_force_limit
+        abs(data.wrench.force.x) > wrist_force_limit
+        or abs(data.wrench.force.y) > wrist_force_limit
+        or abs(data.wrench.force.z) > wrist_force_limit
     ):
-        rospy.logwarn(f"Exceeded wrist force limit. Motion disabled")
+        rospy.logwarn(f"Exceeded left wrist force limit. Motion disabled")
         send_commands_ = False
 
     if (
-        data.wrench.torque.x > wrist_torque_limit
-        or data.wrench.torque.y > wrist_torque_limit
-        or data.wrench.torque.z > wrist_torque_limit
+        abs(data.wrench.torque.x) > wrist_torque_limit
+        or abs(data.wrench.torque.y) > wrist_torque_limit
+        or abs(data.wrench.torque.z) > wrist_torque_limit
     ):
-        rospy.logwarn(f"Exceeded wrist torque limit. Motion disabled")
+        rospy.logwarn(f"Exceeded left wrist torque limit. Motion disabled")
         send_commands_ = False
 
 
@@ -93,7 +93,21 @@ def right_ft_callback(data: WrenchStamped):
     global wrist_force_limit
     global wrist_torque_limit
     global send_commands_
-    pass
+    if (
+        abs(data.wrench.force.x) > wrist_force_limit
+        or abs(data.wrench.force.y) > wrist_force_limit
+        or abs(data.wrench.force.z) > wrist_force_limit
+    ):
+        rospy.logwarn(f"Exceeded right wrist force limit. Motion disabled")
+        send_commands_ = False
+
+    if (
+        abs(data.wrench.torque.x) > wrist_torque_limit
+        or abs(data.wrench.torque.y) > wrist_torque_limit
+        or abs(data.wrench.torque.z) > wrist_torque_limit
+    ):
+        rospy.logwarn(f"Exceeded right wrist torque limit. Motion disabled")
+        send_commands_ = False
 
 
 def io_callback(data: JointState):
