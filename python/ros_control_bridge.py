@@ -187,7 +187,7 @@ def control_initiator_cb(msg):
 
 
 if __name__ == "__main__":
-    rospy.init_node("ros_control_bridge", anonymous=True)
+    rospy.init_node("ros_control_bridge", anonymous=False)
     rospy.loginfo(f"SEND_VELOCITY: {SEND_VELOCITY}")
 
     # Wait to receive the first msg from /joint_states
