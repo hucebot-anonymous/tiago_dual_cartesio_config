@@ -7,6 +7,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Twist, WrenchStamped
 from std_msgs.msg import Float32, Bool
 from std_srvs.srv import SetBool, SetBoolResponse
+from pal_control_msgs.msg import ActuatorCurrentLimit
 
 head_cmd_pub_ = None
 head_cmd_msg_ = JointTrajectory()
@@ -195,6 +196,26 @@ if __name__ == "__main__":
     # Wait to receive the first msg from /joint_states
     data = rospy.wait_for_message("joint_states", JointState, timeout=5)
     set_initial_configuration(data)
+
+    ### TEST
+    curr_limit_pub = rospy.Publisher(
+        "/gripper_left_current_limit_controller/command",
+        ActuatorCurrentLimit,
+        queue_size=1,
+    )
+    curr_lim_msg = ActuatorCurrentLimit()
+    curr_lim_msg.actuator_names = [
+        "gripper_left_left_finger_motor",
+        "gripper_left_right_finger_motor",
+    ]
+    curr_lim_msg.current_limits = [0.5, 0.6]
+    while curr_limit_pub.get_num_connections() < 1:
+        # wait for a connection to publisher
+        rospy.loginfo("Connecting to current limit controller...")
+        pass
+
+    curr_limit_pub.publish(curr_lim_msg)
+    # ...
 
     # Set up command publishers and msgs
     head_cmd_pub_ = rospy.Publisher(
