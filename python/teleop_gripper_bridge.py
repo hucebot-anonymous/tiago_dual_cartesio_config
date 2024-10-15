@@ -35,7 +35,7 @@ def io_callback(data: Float32):
         ] = gripper
     gripper_cmd_msg.points[0].time_from_start = rospy.Duration(time_duration)
 
-    gripper_cmd_msg.header.stamp = rospy.get_rostime()
+    #gripper_cmd_msg.header.stamp = rospy.get_rostime()
     gripper_cmd_pub.publish(gripper_cmd_msg)
 
 
