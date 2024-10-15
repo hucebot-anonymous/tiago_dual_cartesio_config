@@ -65,7 +65,7 @@ def callback(data: PoseStamped):
 
 
 if __name__ == "__main__":
-    rospy.init_node("teleop_bridge", anonymous=True)
+    rospy.init_node("teleop_bridge", anonymous=False)
 
     if rospy.has_param("~controlled_frame"):
         controlled_frame = rospy.get_param("~controlled_frame")
