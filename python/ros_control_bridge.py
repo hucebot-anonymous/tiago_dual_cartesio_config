@@ -25,8 +25,10 @@ mobile_base_cmd_msg_ = Twist()
 
 time_from_start_ = 0.2
 
-wrist_force_limit = 20
-wrist_torque_limit = 2
+# max value for each axis: x = -42, y = -58, z = -69
+wrist_force_limit = 71.0
+# max value for each axis: x = 8, y = -11, z = 3.0
+wrist_torque_limit = 12.0
 
 exit_ = False
 
