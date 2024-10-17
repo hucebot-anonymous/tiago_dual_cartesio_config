@@ -36,7 +36,7 @@
 	<arg name="right_TELEOP_MAX" default="0."/>
 	<arg name="right_TELEOP_MIN" default="1."/>
 	<arg name="right_GRIPPER_MAX" default="0.044"/>
-	<arg name="right_GRIPPER_MIN" default="0.010"/>
+	<arg name="right_GRIPPER_MIN" default="0.001"/>
 	<node pkg="tiago_dual_cartesio_config" type="teleop_gripper_bridge.py" name="right_arm_teleoperation_gripper" output="screen">
 		<remap from="/teleop_gripper" to="/dxl_input/gripper_right"/>
 		<param name="controller_gripper" type="str" value="$(arg right_controller_gripper)" />

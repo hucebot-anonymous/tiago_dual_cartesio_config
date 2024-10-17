@@ -198,37 +198,37 @@ if __name__ == "__main__":
     set_initial_configuration(data)
 
     # Lower maximum currents for the grippers
-    lg_curr_lim_pub = rospy.Publisher(
-        "/gripper_left_current_limit_controller/command",
-        ActuatorCurrentLimit,
-        queue_size=1,
-    )
-    lg_curr_lim_msg = ActuatorCurrentLimit()
-    lg_curr_lim_msg.actuator_names = [
-        "gripper_left_left_finger_motor",
-        "gripper_left_right_finger_motor",
-    ]
-    lg_curr_lim_msg.current_limits = [0.75, 0.75]
-    while lg_curr_lim_pub.get_num_connections() < 1:
-        # wait for a connection to publisher
-        pass
-    lg_curr_lim_pub.publish(lg_curr_lim_msg)
+    # lg_curr_lim_pub = rospy.Publisher(
+    #     "/gripper_left_current_limit_controller/command",
+    #     ActuatorCurrentLimit,
+    #     queue_size=1,
+    # )
+    # lg_curr_lim_msg = ActuatorCurrentLimit()
+    # lg_curr_lim_msg.actuator_names = [
+    #     "gripper_left_left_finger_motor",
+    #     "gripper_left_right_finger_motor",
+    # ]
+    # lg_curr_lim_msg.current_limits = [0.75, 0.75]
+    # while lg_curr_lim_pub.get_num_connections() < 1:
+    #     # wait for a connection to publisher
+    #     pass
+    # lg_curr_lim_pub.publish(lg_curr_lim_msg)
 
-    rg_curr_lim_pub = rospy.Publisher(
-        "/gripper_right_current_limit_controller/command",
-        ActuatorCurrentLimit,
-        queue_size=1,
-    )
-    rg_curr_lim_msg = ActuatorCurrentLimit()
-    rg_curr_lim_msg.actuator_names = [
-        "gripper_right_left_finger_motor",
-        "gripper_right_right_finger_motor",
-    ]
-    rg_curr_lim_msg.current_limits = [0.75, 0.75]
-    while rg_curr_lim_pub.get_num_connections() < 1:
-        # wait for a connection to publisher
-        pass
-    rg_curr_lim_pub.publish(rg_curr_lim_msg)
+    # rg_curr_lim_pub = rospy.Publisher(
+    #     "/gripper_right_current_limit_controller/command",
+    #     ActuatorCurrentLimit,
+    #     queue_size=1,
+    # )
+    # rg_curr_lim_msg = ActuatorCurrentLimit()
+    # rg_curr_lim_msg.actuator_names = [
+    #     "gripper_right_left_finger_motor",
+    #     "gripper_right_right_finger_motor",
+    # ]
+    # rg_curr_lim_msg.current_limits = [0.75, 0.75]
+    # while rg_curr_lim_pub.get_num_connections() < 1:
+    #     # wait for a connection to publisher
+    #     pass
+    # rg_curr_lim_pub.publish(rg_curr_lim_msg)
 
     # Set up command publishers and msgs
     head_cmd_pub_ = rospy.Publisher(
