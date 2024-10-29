@@ -2359,7 +2359,7 @@
 	
 	<link name="camera_head_frame"/>
 	<joint name="camera_head_frame_joint" type="fixed">
-		  <origin rpy="3.093 0.759 -0.027" xyz="0.127 0.031 1.174"/>
+		  <origin rpy="-3.1415927 0.0 0.0" xyz="0.171591 0.0112369 1.20358"/>
 		  <parent link="base_link"/>
 		  <child link="camera_head_frame"/>
 	</joint>
