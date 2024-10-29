@@ -23,7 +23,7 @@ Ree:
     
 Postural:
     type: "Postural"
-    lambda: 0.1
+    lambda: 0.05
     use_inertia: false
     weight:
         reference@v0: 0.0
