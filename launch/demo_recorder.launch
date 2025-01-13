@@ -1,7 +1,0 @@
-<launch>
-  <node pkg="tiago_dual_cartesio_config" type="demo_recorder.py" name="demo_recorder_node" output="screen">
-    <rosparam param="folder_path">"/home/forest_ws/src/tiago_dual_cartesio_config/python/demo"</rosparam>
-    <rosparam param="cameras">["orbbec_head"]</rosparam>
-    <rosparam param="tags">[0]</rosparam>
-  </node>
-</launch>
