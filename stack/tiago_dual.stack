@@ -6,14 +6,14 @@ stack:
     - ["Lee", "Ree", "Base"]
     - ["Postural"]
 
+constraints: ["JointLimits", "VelocityLimits", "Base2D", "Collision"]
+
 Gaze:
     type: "Gaze"
     distal_link: "head_front_camera_link"
     base_link: "base_link"
     lambda: 1.
     lambda: 0.1
-
-constraints: ["JointLimits", "VelocityLimits", "Base2D", "Collision"]
 
 Omni4X:
     type: "OmniWheels4X"
