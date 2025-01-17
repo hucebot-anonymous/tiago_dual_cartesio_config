@@ -3,13 +3,18 @@ solver_options:
     back_end: "qpoases"
 
 stack:
-    - ["Lee", "Ree", "Base", "Gaze"]
+    - ["Lee", "Ree", "Base"]
     - ["Postural"]
 
-    
-constraints: ["JointLimits", "VelocityLimits", "Base2D", "Omni4X", "Collision"]
-    
-    
+constraints: ["JointLimits", "VelocityLimits", "Base2D", "Collision"]
+
+Gaze:
+    type: "Gaze"
+    distal_link: "head_front_camera_link"
+    base_link: "base_link"
+    lambda: 1.
+    lambda: 0.1
+
 Omni4X:
     type: "OmniWheels4X"
     l1: 0.223
@@ -21,25 +26,19 @@ Omni4X:
 Lee:
     type: "Cartesian"
     distal_link: "gripper_left_grasping_frame"
-    base_link: "world"
+    base_link: "base_link"
     lambda: 0.1
     
 Ree:
     type: "Cartesian"
     distal_link: "gripper_right_grasping_frame"
-    base_link: "world"
-    lambda: 0.1
-    
-Gaze:
-    type: "Gaze"
-    distal_link: "head_front_camera_link"
     base_link: "base_link"
-    lambda: 1.
+    lambda: 0.1
     
 Postural:
     type: "Postural"
-    lambda: 0.1
-    use_inertia: true
+    lambda: 0.05
+    use_inertia: false
     weight:
         reference@v0: 0.0
         reference@v1: 0.0
@@ -70,6 +69,21 @@ Base2D:
     
 JointLimits:
     type: "JointLimits"
+    limits:
+        arm_right_1_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_right_2_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_right_3_joint: [-0.7153981633974482, 3.8569908169872416]
+        arm_right_4_joint: [-0.32269908169872413, 2.286194490192345]
+        arm_right_5_joint: [-2.0743951023931952, 2.0743951023931952]
+        arm_right_6_joint: [-1.3937166941154069, 1.3937166941154069]
+        arm_right_7_joint: [-2.0743951023931952, 2.0743951023931952]
+        arm_left_1_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_left_2_joint: [-1.1080972450961724, 1.5007963267948965]
+        arm_left_3_joint: [-0.7153981633974482, 3.8569908169872416]
+        arm_left_4_joint: [-0.32269908169872413, 2.286194490192345]
+        arm_left_5_joint: [-2.0743951023931952, 2.0743951023931952]
+        arm_left_6_joint: [-1.3937166941154069, 1.3937166941154069]
+        arm_left_7_joint: [-2.0743951023931952, 2.0743951023931952]
 
 VelocityLimits:
     type: "VelocityLimits"
@@ -139,5 +153,9 @@ Collision:
      - [gripper_right_link, arm_left_4_link]
      - [gripper_right_link, arm_left_5_link]
      
+     - [torso_fixed_column_link, gripper_right_left_finger_link]
+     - [torso_fixed_column_link, gripper_right_right_finger_link]
+     - [torso_fixed_column_link, gripper_left_left_finger_link]
+     - [torso_fixed_column_link, gripper_left_right_finger_link]
      
      

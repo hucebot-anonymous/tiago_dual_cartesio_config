@@ -7,9 +7,11 @@ Panels:
         - /Global Options1
         - /Status1
         - /InteractiveMarkers1
-        - /Marker1/Status1
-      Splitter Ratio: 0.5
-    Tree Height: 719
+        - /TF1
+        - /TF1/Frames1
+        - /TF1/Tree1/odom1
+      Splitter Ratio: 0.6153846383094788
+    Tree Height: 725
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -179,6 +181,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        camera_right_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         gripper_left_grasping_frame:
           Alpha: 1
           Show Axes: false
@@ -365,17 +371,243 @@ Visualization Manager:
       Show Visual Aids: false
       Update Topic: /gripper_right_grasping_frame_cartesian_marker_server/update
       Value: true
-    - Class: rviz/Marker
+    - Class: rviz/TF
       Enabled: true
-      Marker Topic: /cartesian/collision_avoidance/collision_distances
-      Name: Marker
-      Namespaces:
-        "": true
-      Queue Size: 100
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        ci/arm_left_1_link:
+          Value: false
+        ci/arm_left_2_link:
+          Value: false
+        ci/arm_left_3_link:
+          Value: false
+        ci/arm_left_4_link:
+          Value: false
+        ci/arm_left_5_link:
+          Value: false
+        ci/arm_left_6_link:
+          Value: false
+        ci/arm_left_7_link:
+          Value: false
+        ci/arm_left_tool_link:
+          Value: false
+        ci/arm_right_1_link:
+          Value: false
+        ci/arm_right_2_link:
+          Value: false
+        ci/arm_right_3_link:
+          Value: false
+        ci/arm_right_4_link:
+          Value: false
+        ci/arm_right_5_link:
+          Value: false
+        ci/arm_right_6_link:
+          Value: false
+        ci/arm_right_7_link:
+          Value: false
+        ci/arm_right_tool_link:
+          Value: false
+        ci/base_antenna_left_link:
+          Value: false
+        ci/base_antenna_right_link:
+          Value: false
+        ci/base_dock_link:
+          Value: false
+        ci/base_footprint:
+          Value: false
+        ci/base_front_laser_link:
+          Value: false
+        ci/base_imu_link:
+          Value: false
+        ci/base_link:
+          Value: true
+        ci/base_rear_laser_link:
+          Value: false
+        ci/camera_right_frame:
+          Value: false
+        ci/com:
+          Value: false
+        ci/gripper_left_grasping_frame:
+          Value: true
+        ci/gripper_left_left_finger_link:
+          Value: false
+        ci/gripper_left_link:
+          Value: false
+        ci/gripper_left_right_finger_link:
+          Value: false
+        ci/gripper_left_tool_link:
+          Value: false
+        ci/gripper_right_grasping_frame:
+          Value: true
+        ci/gripper_right_left_finger_link:
+          Value: false
+        ci/gripper_right_link:
+          Value: false
+        ci/gripper_right_right_finger_link:
+          Value: false
+        ci/gripper_right_tool_link:
+          Value: false
+        ci/head_1_link:
+          Value: false
+        ci/head_2_link:
+          Value: false
+        ci/head_front_camera_depth_frame:
+          Value: false
+        ci/head_front_camera_depth_optical_frame:
+          Value: false
+        ci/head_front_camera_link:
+          Value: false
+        ci/head_front_camera_optical_frame:
+          Value: false
+        ci/head_front_camera_orbbec_aux_joint_frame:
+          Value: false
+        ci/head_front_camera_rgb_frame:
+          Value: false
+        ci/head_front_camera_rgb_optical_frame:
+          Value: false
+        ci/rgbd_laser_link:
+          Value: false
+        ci/suspension_front_left_link:
+          Value: false
+        ci/suspension_front_right_link:
+          Value: false
+        ci/suspension_rear_left_link:
+          Value: false
+        ci/suspension_rear_right_link:
+          Value: false
+        ci/torso_fixed_column_link:
+          Value: false
+        ci/torso_fixed_link:
+          Value: false
+        ci/torso_lift_link:
+          Value: false
+        ci/virtual_base_laser_link:
+          Value: false
+        ci/wheel_front_left_link:
+          Value: false
+        ci/wheel_front_right_link:
+          Value: false
+        ci/wheel_rear_left_link:
+          Value: false
+        ci/wheel_rear_right_link:
+          Value: false
+        ci/world:
+          Value: false
+        ci/wrist_left_ft_link:
+          Value: false
+        ci/wrist_left_ft_tool_link:
+          Value: false
+        ci/wrist_right_ft_link:
+          Value: false
+        ci/wrist_right_ft_tool_link:
+          Value: false
+        odom:
+          Value: false
+      Marker Alpha: 1
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        odom:
+          ci/world:
+            ci/base_footprint:
+              ci/base_link:
+                ci/base_antenna_left_link:
+                  {}
+                ci/base_antenna_right_link:
+                  {}
+                ci/base_dock_link:
+                  {}
+                ci/base_front_laser_link:
+                  {}
+                ci/base_imu_link:
+                  {}
+                ci/base_rear_laser_link:
+                  {}
+                ci/suspension_front_left_link:
+                  ci/wheel_front_left_link:
+                    {}
+                ci/suspension_front_right_link:
+                  ci/wheel_front_right_link:
+                    {}
+                ci/suspension_rear_left_link:
+                  ci/wheel_rear_left_link:
+                    {}
+                ci/suspension_rear_right_link:
+                  ci/wheel_rear_right_link:
+                    {}
+                ci/torso_fixed_column_link:
+                  {}
+                ci/torso_fixed_link:
+                  ci/torso_lift_link:
+                    ci/arm_left_1_link:
+                      ci/arm_left_2_link:
+                        ci/arm_left_3_link:
+                          ci/arm_left_4_link:
+                            ci/arm_left_5_link:
+                              ci/arm_left_6_link:
+                                ci/arm_left_7_link:
+                                  ci/arm_left_tool_link:
+                                    ci/wrist_left_ft_link:
+                                      ci/wrist_left_ft_tool_link:
+                                        ci/gripper_left_link:
+                                          ci/gripper_left_grasping_frame:
+                                            {}
+                                          ci/gripper_left_left_finger_link:
+                                            {}
+                                          ci/gripper_left_right_finger_link:
+                                            {}
+                                        ci/gripper_left_tool_link:
+                                          {}
+                    ci/arm_right_1_link:
+                      ci/arm_right_2_link:
+                        ci/arm_right_3_link:
+                          ci/arm_right_4_link:
+                            ci/arm_right_5_link:
+                              ci/arm_right_6_link:
+                                ci/arm_right_7_link:
+                                  ci/arm_right_tool_link:
+                                    ci/wrist_right_ft_link:
+                                      ci/wrist_right_ft_tool_link:
+                                        ci/camera_right_frame:
+                                          {}
+                                        ci/gripper_right_link:
+                                          ci/gripper_right_grasping_frame:
+                                            {}
+                                          ci/gripper_right_left_finger_link:
+                                            {}
+                                          ci/gripper_right_right_finger_link:
+                                            {}
+                                        ci/gripper_right_tool_link:
+                                          {}
+                    ci/head_1_link:
+                      ci/head_2_link:
+                        ci/head_front_camera_link:
+                          ci/head_front_camera_optical_frame:
+                            {}
+                          ci/head_front_camera_orbbec_aux_joint_frame:
+                            ci/head_front_camera_rgb_frame:
+                              ci/head_front_camera_depth_frame:
+                                ci/head_front_camera_depth_optical_frame:
+                                  {}
+                              ci/head_front_camera_rgb_optical_frame:
+                                {}
+                ci/virtual_base_laser_link:
+                  {}
+              ci/rgbd_laser_link:
+                {}
+            ci/com:
+              {}
+      Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
-    Background Color: 255; 255; 255
+    Background Color: 0; 0; 0
     Default Light: true
     Fixed Frame: ci/world
     Frame Rate: 30
@@ -401,7 +633,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.7909255027770996
+      Distance: 2.7537271976470947
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -417,9 +649,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3553982377052307
+      Pitch: 0.2403983473777771
       Target Frame: <Fixed Frame>
-      Yaw: 0.02539195865392685
+      Yaw: 0.3503918945789337
     Saved: ~
 Window Geometry:
   Displays:
@@ -427,7 +659,7 @@ Window Geometry:
   Height: 1016
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000016a0000035afc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000035a000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f0000035afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000035a000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007380000003efc0100000002fb0000000800540069006d0065010000000000000738000003bc00fffffffb0000000800540069006d00650100000000000004500000000000000000000005c80000035a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001950000035efc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003b0000035e000000c700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f0000035afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000035a000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007380000003efc0100000002fb0000000800540069006d00650100000000000007380000030700fffffffb0000000800540069006d006501000000000000045000000000000000000000059d0000035e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
