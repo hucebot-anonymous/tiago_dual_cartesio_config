@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Float32
+from geometry_msgs.msg import PointStamped
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 gripper_cmd_pub = None
@@ -24,9 +24,9 @@ def print_info():
     rospy.loginfo(f"    TELEOP_MIN: {TELEOP_MIN}")
 
 
-def io_callback(data: Float32):
+def io_callback(data: PointStamped):
     a = (GRIPPER_MAX - GRIPPER_MIN) / (TELEOP_MAX - TELEOP_MIN)
-    d = data.data
+    d = data.point.x
     gripper = a * d * (d - TELEOP_MAX) + GRIPPER_MAX
 
     for joint_name in gripper_cmd_msg.joint_names:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     )
     gripper_cmd_msg = init_cmd_msg(gripper_cmd_msg, controller_gripper_joints)
 
-    rospy.Subscriber("teleop_gripper", Float32, io_callback)
+    rospy.Subscriber("teleop_gripper", PointStamped, io_callback)
 
     rate = rospy.Rate(rate_)
     while not rospy.is_shutdown():
