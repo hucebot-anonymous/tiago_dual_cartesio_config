@@ -1,0 +1,23 @@
+<launch>
+    <!-- Right EE -->
+    <arg name="right_controlled_frame" default="gripper_right_grasping_frame"/>
+	<arg name="right_controlled_gripper" default="gripper_right_controller"/>
+	<arg name="right_controlled_gripper_joints" default="[gripper_right_left_finger_joint, gripper_right_right_finger_joint]"/>
+	<arg name="right_TELEOP_MAX" default="0."/>
+	<arg name="right_TELEOP_MIN" default="1."/>
+	<arg name="right_GRIPPER_MAX" default="0.044"/>
+	<arg name="right_GRIPPER_MIN" default="0.001"/>
+	<arg name="cameras" default="[tiago_right_camera]"/>
+	<node pkg="tiago_dual_cartesio_config" type="teleop_or_policy_bridge.py" name="right_ee_teleop_or_policy" output="screen">
+		<remap from="/teleop_pose" to="/dxl_input/pos_right"/>
+		<remap from="/teleop_gripper" to="/dxl_input/gripper_right"/>
+		<param name="controlled_frame" type="str" value="$(arg right_controlled_frame)" />
+		<param name="controlled_gripper" type="str" value="$(arg right_controlled_gripper)" />
+		<rosparam param="controlled_gripper_joints" subst_value="True">$(arg right_controlled_gripper_joints)</rosparam>
+		<param name="TELEOP_MAX" type="double" value="$(arg right_TELEOP_MAX)" />
+		<param name="TELEOP_MIN" type="double" value="$(arg right_TELEOP_MIN)" />
+		<param name="GRIPPER_MAX" type="double" value="$(arg right_GRIPPER_MAX)" />
+		<param name="GRIPPER_MIN" type="double" value="$(arg right_GRIPPER_MIN)" />
+		<rosparam param="cameras" subst_value="True">$(arg cameras)</rosparam>
+	</node>
+</launch>

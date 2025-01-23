@@ -55,8 +55,8 @@
     <arg name="gui" default="true"/>
     <node if="$(arg gui)" type="rviz" name="rviz" pkg="rviz" output="screen" args="-d $(find tiago_dual_cartesio_config)/launch/viz.rviz"/>
     
-    <arg name="use_postural_gui" default="true"/>
-    <node if="$(arg use_postural_gui)" pkg="cartesian_interface" type="postural_gui" name="postural_gui"/>
+    <!-- <arg name="use_postural_gui" default="true"/>
+    <node if="$(arg use_postural_gui)" pkg="cartesian_interface" type="postural_gui" name="postural_gui"/> -->
     
     <node pkg="tf" type="static_transform_publisher" name="ci_world_to_odom" args="0 0 0 0 0 0 /odom /ci/world 500"/>       
 </launch>
