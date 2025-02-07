@@ -3,11 +3,11 @@
 CartesI/O configuration files for Tiago Dual (omnibase) robot developed by PAL Robotics. 
  
 
-# Features
-[![Tiago Dual](https://img.youtube.com/vi/tNu_9wIXg-Q/0.jpg)](https://youtu.be/tNu_9wIXg-Q "Tiago Dual")
+# Control Scheme Overview
+![](assets/control_scheme.png)
 
 
-The stack is depicted in the ```tiago_dual_cartesio_config/stack/tiago_dual.stack``` file.
+The stack is defined in the ```tiago_dual_cartesio_config/stack/tiago_dual.stack``` file.
 
 How to run
 ----------
